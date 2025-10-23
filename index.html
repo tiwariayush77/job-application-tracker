@@ -1,285 +1,747 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Job Tracker (Clean)</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Job Application Tracker | Nordic Blues</title>
 <style>
-  :root{--bg:#0e3a69;--acc:#2b85f7;--ok:#1b5e20;--err:#b71c1c;--mut:#6b7b8c}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial;background:linear-gradient(135deg,#2b85f7 0%,#0e3a69 100%);min-height:100vh;padding:20px;color:#132739}
-  .wrap{max-width:1100px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.25);padding:18px}
-  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-  h1{font-size:20px}
-  button,.btn{padding:9px 12px;border:0;border-radius:8px;background:var(--acc);color:#fff;cursor:pointer;font-weight:700}
-  button:disabled{opacity:.6;cursor:not-allowed}
-  .sec{background:#f6f9ff;border:1px solid #dee8ff;border-radius:10px;padding:12px;margin:10px 0}
-  label{font-size:12px;font-weight:700;color:#0e3a69}
-  input,select,textarea{border:1px solid #c8d6f0;border-radius:8px;padding:9px;background:#fff;width:100%}
-  textarea{min-height:70px;resize:vertical}
-  .grid{display:grid;gap:10px}
-  .g2{grid-template-columns:1fr 1fr}
-  .g3{grid-template-columns:1fr 1fr 1fr}
-  @media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
-  .tabbar{display:flex;gap:8px;margin:8px 0}
-  .tab{padding:8px 12px;border-radius:999px;border:1px solid #d9e6ff;background:#eef5ff;cursor:pointer}
-  .tab.active{background:var(--acc);color:#fff}
-  table{width:100%;border-collapse:collapse;background:#fff}
-  th,td{padding:10px;border-bottom:1px solid #eef2fb;text-align:left;font-size:14px}
-  th{background:#0e3a69;color:#fff;font-size:12px;text-transform:uppercase}
-  .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
-  .ok{background:#e8f5e9;color:#1b5e20}.err{background:#ffebee;color:#b71c1c}.mut{background:#eef5ff;color:#0e3a69}
-  .note{font-size:12px;color:#577091}
+/* EXACT ORIGINAL NORDIC BLUES THEME */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#288cfa 0%,#103766 100%);padding:20px;min-height:100vh}
+.container{max-width:1400px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(16,55,102,.3);padding:35px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:15px}
+h1{color:#103766;font-size:32px;font-weight:700}.subtitle{color:#5a7ba6;margin-bottom:25px;font-size:15px}
+.header-actions{display:flex;gap:10px;flex-wrap:wrap}
+.cloud-section{background:linear-gradient(135deg,#e8f5e8 0%,#c8e6c9 100%);padding:20px;border-radius:12px;margin-bottom:25px;border:1px solid #81c784}
+.cloud-section h3{color:#2e7d32;margin-bottom:15px;font-size:18px;display:flex;align-items:center;gap:8px}
+.cloud-section h3::before{content:'☁️'}
+.gist-setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:15px}
+.cloud-status{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,.8);border-radius:8px;font-size:14px}
+.status-connected{border-left:4px solid #4caf50}.status-disconnected{border-left:4px solid #f44336}.status-syncing{border-left:4px solid #ff9800}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:18px;margin-bottom:35px}
+.stat-card{background:linear-gradient(135deg,#288cfa 0%,#103766 100%);color:#fff;padding:22px;border-radius:12px;text-align:center;box-shadow:0 6px 20px rgba(40,140,250,.25);transition:.3s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:-50%;right:-50%;width:100%;height:100%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%)}
+.stat-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(40,140,250,.4)}
+.stat-card h3{font-size:36px;margin-bottom:8px;font-weight:700}.stat-card p{font-size:13px;opacity:.95;text-transform:uppercase;letter-spacing:.5px}
+.form-section{background:linear-gradient(135deg,#f5f9ff 0%,#e8f2ff 100%);padding:28px;border-radius:12px;margin-bottom:35px;border:1px solid #d1e3f8}
+.form-section h2{color:#103766;margin-bottom:22px;font-size:20px;font-weight:600;display:flex;align-items:center;gap:10px}
+.form-section h2::before{content:'➕';font-size:18px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:16px}
+.form-group{display:flex;flex-direction:column}
+label{font-weight:600;margin-bottom:6px;color:#103766;font-size:13px}label .required{color:#007ea7}
+input,select,textarea{padding:11px 14px;border:2px solid #d1e3f8;border-radius:8px;font-size:14px;transition:.3s;background:#fff;color:#333}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#288cfa;box-shadow:0 0 0 3px rgba(40,140,250,.1)}
+textarea{resize:vertical;min-height:70px;font-family:inherit}
+.button-group{display:flex;gap:12px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+button{padding:12px 26px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.3s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:linear-gradient(135deg,#288cfa 0%,#103766 100%);color:#fff;box-shadow:0 4px 12px rgba(40,140,250,.3)}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(40,140,250,.5)}
+.btn-secondary{background:#8d99ae;color:#fff}.btn-secondary:hover{background:#6c757d}
+.btn-export{background:#007ea7;color:#fff;font-size:13px;padding:10px 18px}.btn-export:hover{background:#005f7f}
+.btn-cloud{background:#4caf50;color:#fff;font-size:13px;padding:10px 18px}.btn-cloud:hover{background:#45a049}.btn-cloud:disabled{background:#ccc;cursor:not-allowed}
+.filter-section{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap;align-items:center}
+.filter-section select,.filter-section input{padding:10px 14px;border:2px solid #d1e3f8;border-radius:8px;background:#fff;font-size:14px}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:15px}
+.section-header h2{color:#103766;font-size:22px;font-weight:600;display:flex;align-items:center;gap:10px}.section-header h2::before{content:'📊'}
+.table-container{overflow-x:auto;border-radius:12px;box-shadow:0 4px 16px rgba(16,55,102,.1)}
+table{width:100%;border-collapse:collapse;background:#fff}
+thead{background:linear-gradient(135deg,#288cfa 0%,#103766 100%);color:#fff}
+th{padding:16px;text-align:left;font-weight:600;font-size:13px;cursor:pointer;user-select:none;text-transform:uppercase;letter-spacing:.5px}th:hover{background:rgba(255,255,255,.1)}
+td{padding:14px 16px;border-bottom:1px solid #e8f2ff;font-size:14px}
+tbody tr{transition:background .2s}tbody tr:hover{background:#f5f9ff}
+.status-badge{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;display:inline-block;letter-spacing:.3px}
+.status-applied{background:#e3f2fd;color:#1976d2}.status-interviewing{background:#fff3e0;color:#f57c00}.status-offer{background:#c8e6c9;color:#2e7d32}.status-rejected{background:#ffebee;color:#d32f2f}.status-withdrawn{background:#f3e5f5;color:#7b1fa2}.status-accepted{background:#e8f5e9;color:#1b5e20}
+.action-buttons{display:flex;gap:6px}
+.btn-edit,.btn-delete{padding:7px 14px;font-size:12px;border-radius:6px;border:none;cursor:pointer;transition:.2s;font-weight:600}
+.btn-edit{background:#288cfa;color:#fff}.btn-edit:hover{background:#1976d2;transform:scale(1.05)}
+.btn-delete{background:#dc3545;color:#fff}.btn-delete:hover{background:#c82333;transform:scale(1.05)}
+.company-link{color:#288cfa;text-decoration:none;font-weight:600;transition:color .2s}.company-link:hover{color:#103766;text-decoration:underline}
+.priority-high{color:#d32f2f;font-weight:700;display:inline-flex;align-items:center;gap:4px}.priority-high::before{content:'🔴';font-size:10px}
+.priority-medium{color:#f57c00;font-weight:600;display:inline-flex;align-items:center;gap:4px}.priority-medium::before{content:'🟡';font-size:10px}
+.priority-low{color:#388e3c;font-weight:600;display:inline-flex;align-items:center;gap:4px}.priority-low::before{content:'🟢';font-size:10px}
+.empty-state{text-align:center;padding:80px 20px;color:#8d99ae}.empty-state-icon{font-size:64px;margin-bottom:20px;opacity:.5}.empty-state p{font-size:16px}
+.alert-info{background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);border-left:4px solid #288cfa;padding:16px 20px;border-radius:8px;margin-bottom:25px;color:#103766;font-size:14px;line-height:1.6}
+.alert-success{background:linear-gradient(135deg,#e8f5e9 0%,#c8e6c9 100%);border-left:4px solid #4caf50;padding:16px 20px;border-radius:8px;margin-bottom:25px;color:#2e7d32;font-size:14px;line-height:1.6}
+.alert-info strong,.alert-success strong{font-weight:700}
+.sync-indicator{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.sync-indicator.syncing{background:#fff3e0;color:#f57c00;animation:pulse 1s infinite}
+.sync-indicator.synced{background:#e8f5e9;color:#2e7d32}
+.sync-indicator.error{background:#ffebee;color:#d32f2f}
+@keyframes pulse{0%{opacity:1}50%{opacity:.6}100%{opacity:1}}
+@media(max-width:768px){.container{padding:20px}h1{font-size:24px}.form-grid{grid-template-columns:1fr}.gist-setup{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}table{font-size:12px}th,td{padding:10px}.header-actions{width:100%}.btn-export,.btn-cloud{flex:1}}
+
+/* NEW: Simple Pipeline Toggle */
+.pipeline-toggle{margin:20px 0;text-align:center}
+.toggle-btn{background:linear-gradient(135deg,#f5f9ff 0%,#e8f2ff 100%);border:2px solid #d1e3f8;padding:12px 24px;margin:0 5px;border-radius:8px;cursor:pointer;transition:.3s;font-weight:600;color:#103766}
+.toggle-btn.active{background:linear-gradient(135deg,#288cfa 0%,#103766 100%);color:#fff;border-color:#288cfa}
+
+/* NEW: Pre-Apply Panel (same form style) */
+.pipeline-section{background:linear-gradient(135deg,#fff8e1 0%,#fff3c4 100%);padding:20px;border-radius:12px;margin-bottom:25px;border:1px solid #ffcc02;display:none}
+.pipeline-section.active{display:block}
+.pipeline-section h3{color:#f57c00;margin-bottom:15px;font-size:18px;display:flex;align-items:center;gap:8px}
+.pipeline-section h3::before{content:'🎯'}
+
+/* NEW: Referral contacts (inline with original theme) */
+.ref-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.2fr 1fr auto;gap:8px}.ref-row{margin-bottom:8px}
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#eef5ff;border:1px solid #d1e3f8;color:#103766;font-size:12px;font-weight:700}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="h"><h1>Job Application Tracker (Clean)</h1>
-    <div class="row">
-      <button id="exportJson">Export JSON</button>
-      <input type="file" id="importJson" accept="application/json" style="display:none"/>
-      <button id="importBtn" class="btn">Import JSON</button>
-      <button id="syncBtn" disabled>☁️ Sync</button>
+
+<div class="container">
+  <div class="alert-info"><strong>🔒 Enhanced Security:</strong> Data is stored locally in your browser AND can be automatically backed up to your private GitHub Gist. Enable cloud backup below for cross-device access!</div>
+  
+  <header>
+    <div>
+      <h1>📋 Job Application Tracker</h1>
+      <p class="subtitle">Professional Nordic Blues Edition • Track & Organize Your Career Journey</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-export" onclick="exportToJSON()">📥 JSON</button>
+      <button class="btn-export" onclick="exportToXML()">📥 XML</button>
+      <button class="btn-export" onclick="exportToCSV()">📥 CSV</button>
+      <button class="btn-cloud" id="syncBtn" onclick="manualSync()" disabled>☁️ Sync</button>
+    </div>
+  </header>
+
+  <div class="cloud-section">
+    <h3>Cloud Backup & Sync</h3>
+    <div class="gist-setup">
+      <div class="form-group">
+        <label for="githubToken">GitHub Personal Access Token</label>
+        <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx" onchange="setupGitHubSync()">
+      </div>
+      <div class="form-group">
+        <label for="gistId">Gist ID (Auto-created if empty)</label>
+        <input type="text" id="gistId" placeholder="Will auto-generate" readonly>
+      </div>
+    </div>
+    <div class="cloud-status" id="cloudStatus">
+      <span id="statusIcon">❌</span>
+      <span id="statusText">Not connected - Enter GitHub token above</span>
+      <div class="sync-indicator" id="syncIndicator" style="display:none;"></div>
+    </div>
+    <div style="margin-top: 15px; font-size: 12px; color: #666;">
+      <strong>Setup Instructions:</strong>
+      1. Go to <a href="https://github.com/settings/tokens" target="_blank">GitHub → Settings → Developer settings → Personal access tokens</a><br>
+      2. Create a "Classic" token with <strong>gist</strong> scope<br>
+      3. Paste token above - it's stored securely in your browser
     </div>
   </div>
 
-  <div class="sec">
-    <div class="grid g3">
-      <div>
-        <label>GitHub Token (gist scope)</label>
-        <input id="ghToken" type="password" placeholder="ghp_xxxxxx"/>
+  <div class="stats" id="stats">
+    <div class="stat-card"><h3 id="totalApps">0</h3><p>Total Applications</p></div>
+    <div class="stat-card"><h3 id="activeApps">0</h3><p>Active</p></div>
+    <div class="stat-card"><h3 id="pipelineApps">0</h3><p>Pipeline</p></div>
+    <div class="stat-card"><h3 id="offerCount">0</h3><p>Offers</p></div>
+  </div>
+
+  <!-- NEW: Pipeline Toggle -->
+  <div class="pipeline-toggle">
+    <button class="toggle-btn active" onclick="showView('applications')" id="appViewBtn">📊 My Applications</button>
+    <button class="toggle-btn" onclick="showView('pipeline')" id="pipelineViewBtn">🎯 Pre-Apply Pipeline</button>
+  </div>
+
+  <!-- NEW: Pipeline Section -->
+  <div id="pipelineSection" class="pipeline-section">
+    <div class="section-header">
+      <h2>🎯 Pre-Apply Pipeline</h2>
+      <div class="filter-section">
+        <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="filterWillApply" onchange="filterApplications()" checked> Show only Pipeline items</label>
+        <select id="filterApplyPath" onchange="filterApplications()">
+          <option value="">All Paths</option>
+          <option value="Referrals">Referrals</option>
+          <option value="Job Link">Job Link</option>
+          <option value="Both">Both</option>
+          <option value="TBD">TBD</option>
+        </select>
+        <input type="text" id="searchPipeline" placeholder="🔍 Search companies..." oninput="filterApplications()">
       </div>
-      <div>
-        <label>Gist ID</label>
-        <input id="gistId" placeholder="Auto-create on first sync" readonly/>
+    </div>
+    
+    <div class="table-container">
+      <table id="pipelineTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable('companyName')">Company ↕</th>
+            <th onclick="sortTable('jobTitle')">Job Title ↕</th>
+            <th onclick="sortTable('applyPath')">Apply Path ↕</th>
+            <th onclick="sortTable('preStatus')">Pre-Status ↕</th>
+            <th>JD</th>
+            <th>Referrals</th>
+            <th>Priority</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="pipelineBody">
+          <tr><td colspan="8" class="empty-state"><div class="empty-state-icon">🎯</div><p>No pipeline items. Mark applications as "Will Apply" to see them here!</p></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ORIGINAL: Form Section (with Pipeline fields added) -->
+  <div class="form-section">
+    <h2>Add New Application</h2>
+    <form id="applicationForm">
+      <div class="form-grid">
+        <div class="form-group"><label for="companyName">Company Name <span class="required">*</span></label><input type="text" id="companyName" required placeholder="e.g., Google"></div>
+        <div class="form-group"><label for="jobTitle">Job Title <span class="required">*</span></label><input type="text" id="jobTitle" required placeholder="e.g., Product Manager"></div>
+        <div class="form-group"><label for="jobUrl">Job Posting URL</label><input type="url" id="jobUrl" placeholder="https://..."></div>
+        <div class="form-group"><label for="location">Location</label><input type="text" id="location" placeholder="e.g., Remote, Bangalore"></div>
+        <div class="form-group"><label for="dateApplied">Date Applied <span class="required">*</span></label><input type="date" id="dateApplied" required></div>
+        <div class="form-group"><label for="status">Status <span class="required">*</span></label>
+          <select id="status" required>
+            <option value="Applied">Applied</option>
+            <option value="Interviewing">Interviewing</option>
+            <option value="Offer">Offer Received</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Withdrawn">Withdrawn</option>
+            <option value="Accepted">Accepted</option>
+          </select>
+        </div>
+        <div class="form-group"><label for="salary">Salary Range</label><input type="text" id="salary" placeholder="e.g., ₹15-20 LPA"></div>
+        <div class="form-group"><label for="priority">Priority</label>
+          <select id="priority"><option value="Medium">Medium</option><option value="High">High</option><option value="Low">Low</option></select>
+        </div>
+        <div class="form-group"><label for="contactPerson">Contact Person</label><input type="text" id="contactPerson" placeholder="Recruiter/Hiring Manager"></div>
+        <div class="form-group"><label for="contactEmail">Contact Email</label><input type="email" id="contactEmail" placeholder="recruiter@company.com"></div>
+        <div class="form-group"><label for="referralSource">Referral/Source</label><input type="text" id="referralSource" placeholder="LinkedIn, Indeed, Referral"></div>
+        <div class="form-group"><label for="nextFollowUp">Next Follow-up Date</label><input type="date" id="nextFollowUp"></div>
       </div>
-      <div class="grid">
-        <div class="note" id="syncStatus"><span class="pill mut">Not connected</span></div>
-        <div class="row">
-          <button id="saveTok">Save Token</button>
-          <button id="clearTok">Clear Token</button>
-          <button id="pullNow">Pull</button>
-          <button id="pushNow">Push</button>
+
+      <!-- NEW: Pre-Apply Section (styled like original) -->
+      <div style="background:#fff;border:1px solid #d1e3f8;border-radius:12px;padding:20px;margin:20px 0">
+        <h3 style="color:#103766;margin-bottom:15px;font-weight:700">🎯 Pre-Apply Pipeline</h3>
+        
+        <div class="form-grid">
+          <div class="form-group" style="grid-column:1/-1">
+            <label><input type="checkbox" id="willApply"> <strong>Will Apply</strong> (Add to Pipeline)</label>
+            <div style="font-size:12px;color:#5a7ba6;margin-top:4px">Check this to track this opportunity in your pre-application pipeline</div>
+          </div>
+          
+          <div class="form-group"><label for="applyPath">Apply Path</label>
+            <select id="applyPath">
+              <option value="TBD">TBD</option>
+              <option value="Referrals">Referrals</option>
+              <option value="Job Link">Job Link</option>
+              <option value="Both">Both</option>
+            </select>
+          </div>
+          <div class="form-group"><label for="preStatus">Pre-Apply Status</label>
+            <select id="preStatus">
+              <option value="Researching">Researching</option>
+              <option value="Drafting Resume">Drafting Resume</option>
+              <option value="Outreach">Outreach</option>
+              <option value="Waiting Referral">Waiting Referral</option>
+              <option value="Ready to Submit">Ready to Submit</option>
+            </select>
+          </div>
+          <div class="form-group"><label for="jdLink">JD Link</label><input type="url" id="jdLink" placeholder="https://..." /></div>
+          <div class="form-group" style="grid-column:1/-1"><label for="jdSummary">JD Summary</label><textarea id="jdSummary" placeholder="Key requirements, team, location, must-haves..."></textarea></div>
+        </div>
+        
+        <div style="margin-top:16px">
+          <label style="color:#103766;font-weight:700;margin-bottom:8px;display:block">Referral Contacts</label>
+          <div id="referralList" class="ref-grid ref-row"></div>
+          <div class="button-group" style="justify-content:flex-start;margin-top:8px">
+            <button class="btn-secondary" type="button" onclick="addReferralRow()">Add Contact</button>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="note">Token is stored locally; data syncs to a private Gist file job-applications.json.</div>
+
+      <div class="form-group"><label for="notes">Notes & Details</label><textarea id="notes" placeholder="Interview rounds, feedback, next steps..."></textarea></div>
+      <div class="button-group">
+        <button type="button" class="btn-secondary" onclick="resetForm()">Clear Form</button>
+        <button type="submit" class="btn-primary" id="submitBtn">Add Application</button>
+      </div>
+    </form>
   </div>
 
-  <div class="tabbar">
-    <div class="tab active" data-tab="pre">Pre‑Apply</div>
-    <div class="tab" data-tab="active">Active</div>
-    <div class="tab" data-tab="new">Add</div>
-  </div>
-
-  <div id="pre" class="sec">
-    <div class="row" style="justify-content:space-between">
-      <div class="note">Items marked “Will Apply”.</div>
-      <div class="row">
-        <input id="searchPre" placeholder="Search company/role" />
-        <select id="prePath"><option value="">All paths</option><option>Referrals</option><option>Job Link</option><option>Both</option><option>TBD</option></select>
+  <!-- ORIGINAL: Applications Section -->
+  <div id="applicationsSection">
+    <div class="section-header">
+      <h2>My Applications</h2>
+      <div class="filter-section">
+        <select id="filterStatus" onchange="filterApplications()">
+          <option value="">All Statuses</option>
+          <option value="Applied">Applied</option>
+          <option value="Interviewing">Interviewing</option>
+          <option value="Offer">Offer Received</option>
+          <option value="Rejected">Rejected</option>
+          <option value="Withdrawn">Withdrawn</option>
+          <option value="Accepted">Accepted</option>
+        </select>
+        <select id="filterPriority" onchange="filterApplications()">
+          <option value="">All Priorities</option>
+          <option value="High">High Priority</option>
+          <option value="Medium">Medium Priority</option>
+          <option value="Low">Low Priority</option>
+        </select>
+        <input type="text" id="searchCompany" placeholder="🔍 Search company or role..." oninput="filterApplications()">
       </div>
     </div>
-    <table id="preTable">
-      <thead><tr><th>Company</th><th>Role</th><th>Path</th><th>Pre‑Status</th><th>JD</th><th>Referrals</th><th>Actions</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
 
-  <div id="active" class="sec" style="display:none">
-    <div class="row" style="justify-content:space-between">
-      <div class="note">Applied → Interviewing → Offer/Accepted</div>
-      <div class="row">
-        <select id="filterStatus"><option value="">All</option><option>Applied</option><option>Interviewing</option><option>Offer</option><option>Rejected</option><option>Withdrawn</option><option>Accepted</option></select>
-        <input id="searchActive" placeholder="Search company/role" />
-      </div>
+    <div class="table-container">
+      <table id="applicationsTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable('companyName')">Company ↕</th>
+            <th onclick="sortTable('jobTitle')">Job Title ↕</th>
+            <th onclick="sortTable('location')">Location ↕</th>
+            <th onclick="sortTable('dateApplied')">Date Applied ↕</th>
+            <th onclick="sortTable('status')">Status ↕</th>
+            <th onclick="sortTable('priority')">Priority ↕</th>
+            <th>Pipeline</th>
+            <th>Salary</th>
+            <th>Source</th>
+            <th>Follow-up</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="applicationsBody">
+          <tr><td colspan="11" class="empty-state"><div class="empty-state-icon">📭</div><p>No applications yet. Start tracking your job search journey above!</p></td></tr>
+        </tbody>
+      </table>
     </div>
-    <table id="activeTable">
-      <thead><tr><th>Company</th><th>Role</th><th>Status</th><th>Priority</th><th>Next</th><th>Source</th><th>Actions</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div id="new" class="sec" style="display:none">
-    <div class="grid g3">
-      <div><label>Company</label><input id="fCompany"/></div>
-      <div><label>Role</label><input id="fRole"/></div>
-      <div><label>Location</label><input id="fLoc"/></div>
-      <div><label>Job URL</label><input id="fUrl" placeholder="https://..."/></div>
-      <div><label>Status</label><select id="fStatus"><option>Applied</option><option>Interviewing</option><option>Offer</option><option>Rejected</option><option>Withdrawn</option><option>Accepted</option></select></div>
-      <div><label>Priority</label><select id="fPri"><option>Medium</option><option>High</option><option>Low</option></select></div>
-      <div><label>Date Applied</label><input id="fDate" type="date"/></div>
-      <div><label>Next Follow-up</label><input id="fNext" type="date"/></div>
-      <div><label>Source</label><input id="fSource" placeholder="LinkedIn/Referral"/></div>
-      <div class="grid" style="grid-column:1/-1">
-        <label>Pre‑Apply</label>
-        <div class="row"><input type="checkbox" id="fWill"/> <span class="note">Will Apply (pipeline)</span></div>
-      </div>
-      <div><label>Apply Path</label><select id="fPath"><option>TBD</option><option>Referrals</option><option>Job Link</option><option>Both</option></select></div>
-      <div><label>Pre‑Status</label><select id="fPre"><option>Researching</option><option>Drafting Resume</option><option>Outreach</option><option>Waiting Referral</option><option>Ready to Submit</option></select></div>
-      <div><label>JD Link</label><input id="fJd" placeholder="https://..."/></div>
-      <div style="grid-column:1/-1"><label>JD Summary</label><textarea id="fJdSum" placeholder="Key requirements, team, must-haves..."></textarea></div>
-      <div style="grid-column:1/-1"><label>Notes</label><textarea id="fNotes"></textarea></div>
-    </div>
-    <div class="row" style="justify-content:flex-end"><button id="addBtn">Add</button></div>
   </div>
 </div>
 
 <script>
-/* State */
-let applications = JSON.parse(localStorage.getItem('jobApplications')||'[]');
-let githubToken = localStorage.getItem('githubToken')||'';
-let gistId = localStorage.getItem('gistId')||'';
-const $=id=>document.getElementById(id);
+/* ===== EXACT ORIGINAL STATE + PIPELINE ADDITIONS ===== */
+let applications = JSON.parse(localStorage.getItem('jobApplications')) || [];
+let editingIndex = -1;
+let githubToken = localStorage.getItem('githubToken') || '';
+let gistId = localStorage.getItem('gistId') || '';
+let autoSyncEnabled = localStorage.getItem('autoSync') === 'true';
+let currentView = 'applications'; // NEW: track current view
 
-/* Tabs */
-document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-  t.classList.add('active');
-  ['pre','active','new'].forEach(id=>$(id).style.display='none');
-  $(t.dataset.tab).style.display='block';
+/* ===== ORIGINAL INITIALIZATION ===== */
+document.getElementById('dateApplied').valueAsDate = new Date();
+if (githubToken) { document.getElementById('githubToken').value = githubToken; setupGitHubSync(); }
+if (gistId) { document.getElementById('gistId').value = gistId; }
+renderReferralContactsEditor([]);
+renderApplications(); updateStats(); updateCloudStatus();
+
+/* ===== NEW: VIEW SWITCHING ===== */
+function showView(view) {
+  currentView = view;
+  if (view === 'pipeline') {
+    document.getElementById('pipelineSection').classList.add('active');
+    document.getElementById('applicationsSection').style.display = 'none';
+    document.getElementById('pipelineViewBtn').classList.add('active');
+    document.getElementById('appViewBtn').classList.remove('active');
+    renderPipelineTable();
+  } else {
+    document.getElementById('pipelineSection').classList.remove('active');
+    document.getElementById('applicationsSection').style.display = 'block';
+    document.getElementById('appViewBtn').classList.add('active');
+    document.getElementById('pipelineViewBtn').classList.remove('active');
+    renderApplications();
+  }
+}
+
+/* ===== NEW: PIPELINE TABLE RENDERING ===== */
+function renderPipelineTable() {
+  const pipelineApps = applications.filter(app => app.willApply);
+  const pathFilter = document.getElementById('filterApplyPath').value;
+  const searchText = (document.getElementById('searchPipeline').value || '').toLowerCase();
+  
+  const filtered = pipelineApps.filter(app => {
+    const matchesPath = !pathFilter || app.applyPath === pathFilter;
+    const matchesSearch = !searchText || 
+      (app.companyName || '').toLowerCase().includes(searchText) ||
+      (app.jobTitle || '').toLowerCase().includes(searchText);
+    return matchesPath && matchesSearch;
+  });
+
+  const tbody = document.getElementById('pipelineBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><div class="empty-state-icon">🎯</div><p>No pipeline items match your filters</p></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((app, index) => {
+    const willApplyBadge = app.willApply ? '✓' : '-';
+    const path = escapeHtml(app.applyPath || 'TBD');
+    const preStatus = escapeHtml(app.preStatus || 'Researching');
+    const jd = app.jdLink ? `<a href="${app.jdLink}" target="_blank" class="company-link" title="${escapeHtml(app.jdSummary || '')}">JD</a>` : '-';
+    const refCount = (app.referralContacts && app.referralContacts.length) || 0;
+    const actualIndex = applications.indexOf(app);
+    
+    return `<tr>
+      <td>${app.jobUrl ? `<a href="${app.jobUrl}" target="_blank" class="company-link">${escapeHtml(app.companyName)}</a>` : escapeHtml(app.companyName)}</td>
+      <td>${escapeHtml(app.jobTitle)}</td>
+      <td><span class="badge">${path}</span></td>
+      <td><span class="status-badge status-${preStatus.toLowerCase().replace(' ', '-')}">${preStatus}</span></td>
+      <td>${jd}</td>
+      <td>${refCount ? `<button class="btn-secondary" style="padding:4px 8px;font-size:11px" onclick="showReferrals(${actualIndex})">${refCount} contact(s)</button>` : '-'}</td>
+      <td><span class="priority-${(app.priority || 'medium').toLowerCase()}">${app.priority || 'Medium'}</span></td>
+      <td>
+        <div class="action-buttons">
+          <button class="btn-edit" onclick="editApplication(${actualIndex})">Edit</button>
+          <button class="btn-delete" onclick="deleteApplication(${actualIndex})">Delete</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ===== ORIGINAL REFERRAL FUNCTIONS (unchanged) ===== */
+function escapeHtml(text) { 
+  if (!text) return ''; 
+  const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'}; 
+  return text.replace(/[&<>"']/g, m => map[m]); 
+}
+
+function contactRow(c) { 
+  return `<div class="ref-row ref-grid">
+    <input class="ref-name" placeholder="Name" value="${escapeHtml(c.name || '')}">
+    <input class="ref-role" placeholder="Role" value="${escapeHtml(c.role || '')}">
+    <input class="ref-email" placeholder="Email" value="${escapeHtml(c.email || '')}">
+    <input class="ref-linkedin" placeholder="LinkedIn URL" value="${escapeHtml(c.linkedin || '')}">
+    <input class="ref-notes" placeholder="Notes" value="${escapeHtml(c.notes || '')}">
+    <button type="button" class="btn-secondary" onclick="this.parentElement.remove()">Remove</button>
+  </div>`; 
+}
+
+function renderReferralContactsEditor(contacts) { 
+  const host = document.getElementById('referralList'); 
+  host.innerHTML = (contacts || []).map(c => contactRow(c)).join('') || contactRow({}); 
+}
+
+function addReferralRow() { 
+  const host = document.getElementById('referralList'); 
+  host.insertAdjacentHTML('beforeend', contactRow({})); 
+}
+
+function getReferralContactsFromUI() { 
+  const rows = document.querySelectorAll('.ref-row'); 
+  return Array.from(rows).map(r => ({ 
+    name: r.querySelector('.ref-name')?.value?.trim() || '', 
+    role: r.querySelector('.ref-role')?.value?.trim() || '', 
+    email: r.querySelector('.ref-email')?.value?.trim() || '', 
+    linkedin: r.querySelector('.ref-linkedin')?.value?.trim() || '', 
+    notes: r.querySelector('.ref-notes')?.value?.trim() || '' 
+  })).filter(c => c.name || c.email || c.linkedin); 
+}
+
+/* ===== ORIGINAL FORM SUBMISSION (with pipeline fields) ===== */
+document.getElementById('applicationForm').addEventListener('submit', function(e) { 
+  e.preventDefault();
+  const application = {
+    id: Date.now(),
+    companyName: document.getElementById('companyName').value,
+    jobTitle: document.getElementById('jobTitle').value,
+    jobUrl: document.getElementById('jobUrl').value,
+    location: document.getElementById('location').value,
+    dateApplied: document.getElementById('dateApplied').value,
+    status: document.getElementById('status').value,
+    salary: document.getElementById('salary').value,
+    priority: document.getElementById('priority').value,
+    contactPerson: document.getElementById('contactPerson').value,
+    contactEmail: document.getElementById('contactEmail').value,
+    referralSource: document.getElementById('referralSource').value,
+    nextFollowUp: document.getElementById('nextFollowUp').value,
+    // NEW: Pipeline fields
+    willApply: document.getElementById('willApply').checked,
+    applyPath: document.getElementById('applyPath').value,
+    jdLink: document.getElementById('jdLink').value,
+    jdSummary: document.getElementById('jdSummary').value,
+    preStatus: document.getElementById('preStatus').value,
+    referralContacts: getReferralContactsFromUI(),
+    
+    notes: document.getElementById('notes').value,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  if (editingIndex >= 0) { 
+    applications[editingIndex] = {...applications[editingIndex], ...application, updatedAt: new Date().toISOString()}; 
+    editingIndex = -1; 
+    document.getElementById('submitBtn').textContent = 'Add Application'; 
+  } else { 
+    applications.unshift(application); 
+  }
+  
+  saveApplications(); 
+  renderApplications(); 
+  if (currentView === 'pipeline') renderPipelineTable();
+  updateStats(); 
+  resetForm(); 
+  if (autoSyncEnabled && githubToken) syncToGist();
 });
 
-$('importBtn').onclick=()=>$('importJson').click();
-$('importJson').onchange=e=>{
-  const file=e.target.files[0]; if(!file) return;
-  const r=new FileReader();
-  r.onload=()=>{ try{ const data=JSON.parse(r.result); if(Array.isArray(data)){ applications=data; saveLocal(); renderAll(); toast('Imported', true); } }catch(err){ toast('Import failed', false); } };
-  r.readAsText(file);
-};
-$('exportJson').onclick=()=>{
-  const blob=new Blob([JSON.stringify(applications,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='job-applications.json'; a.click(); URL.revokeObjectURL(url);
-};
+/* ===== ORIGINAL FUNCTIONS (with pipeline additions) ===== */
+function saveApplications() { localStorage.setItem('jobApplications', JSON.stringify(applications)); }
 
-function saveLocal(){ localStorage.setItem('jobApplications', JSON.stringify(applications)); }
-function toast(msg, ok){ $('syncStatus').innerHTML = `<span class="pill ${ok?'ok':'err'}">${msg}</span>`; }
-
-/* Renderers */
-function renderPre(){
-  const q=($('searchPre').value||'').toLowerCase();
-  const p=$('prePath').value||'';
-  const list=applications.filter(a=>a.willApply)
-    .filter(a=>!p || a.applyPath===p)
-    .filter(a=>(a.companyName||'').toLowerCase().includes(q) || (a.jobTitle||'').toLowerCase().includes(q));
-  const rows = list.map((a,i)=>`<tr>
-    <td>${esc(a.companyName)}</td>
-    <td>${esc(a.jobTitle)}</td>
-    <td>${esc(a.applyPath||'TBD')}</td>
-    <td>${esc(a.preStatus||'Researching')}</td>
-    <td>${a.jdLink?`<a href="${a.jdLink}" target="_blank">JD</a>`:'-'}</td>
-    <td>${(a.referralContacts||[]).length||0}</td>
-    <td><button onclick="editItem(${applications.indexOf(a)})">Edit</button> <button onclick="delItem(${applications.indexOf(a)})">Delete</button></td>
-  </tr>`).join('') || `<tr><td colspan="7" class="note">No planned applications</td></tr>`;
-  $('preTable').querySelector('tbody').innerHTML = rows;
-}
-function renderActive(){
-  const st=$('filterStatus').value||''; const q=($('searchActive').value||'').toLowerCase();
-  const list=applications
-    .filter(a=>!a.willApply)
-    .filter(a=>!st || a.status===st)
-    .filter(a=>(a.companyName||'').toLowerCase().includes(q) || (a.jobTitle||'').toLowerCase().includes(q));
-  const rows = list.map((a,i)=>`<tr>
-    <td>${esc(a.companyName)}</td><td>${esc(a.jobTitle)}</td>
-    <td>${esc(a.status||'Applied')}</td><td>${esc(a.priority||'Medium')}</td>
-    <td>${esc(a.nextFollowUp||'')}</td><td>${esc(a.referralSource||'')}</td>
-    <td><button onclick="editItem(${applications.indexOf(a)})">Edit</button> <button onclick="delItem(${applications.indexOf(a)})">Delete</button></td>
-  </tr>`).join('') || `<tr><td colspan="7" class="note">No applications</td></tr>`;
-  $('activeTable').querySelector('tbody').innerHTML = rows;
-}
-function renderAll(){ renderPre(); renderActive(); }
-
-function esc(s){ return (s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
-
-/* Add/Edit/Delete */
-$('fDate').valueAsDate=new Date();
-$('addBtn').onclick=()=>{
-  const a={ id:Date.now(),
-    companyName:$('fCompany').value.trim(), jobTitle:$('fRole').value.trim(), jobUrl:$('fUrl').value.trim(),
-    location:$('fLoc').value.trim(), dateApplied:$('fDate').value, status:$('fStatus').value, salary:'',
-    priority:$('fPri').value, contactPerson:'', contactEmail:'', referralSource:$('fSource').value.trim(),
-    nextFollowUp:$('fNext').value, notes:$('fNotes').value.trim(),
-    willApply:$('fWill').checked, applyPath:$('fPath').value, preStatus:$('fPre').value, jdLink:$('fJd').value.trim(),
-    jdSummary:$('fJdSum').value.trim(), referralContacts:[]
-  };
-  applications.unshift(a); saveLocal(); renderAll(); toast('Added', true);
-  if (githubToken) pushNow();
-  // reset minimal
-  ['fCompany','fRole','fUrl','fLoc','fSource','fNotes','fJd','fJdSum'].forEach(id=>$(id).value='');
-  $('fWill').checked=false; $('fPath').value='TBD'; $('fPre').value='Researching'; $('fPri').value='Medium'; $('fStatus').value='Applied'; $('fNext').value='';
-};
-
-window.editItem=(idx)=>{
-  const a=applications[idx]; if(!a) return;
-  // put into Add form for quick edits
-  $('fCompany').value=a.companyName||''; $('fRole').value=a.jobTitle||''; $('fUrl').value=a.jobUrl||'';
-  $('fLoc').value=a.location||''; $('fDate').value=a.dateApplied||''; $('fStatus').value=a.status||'Applied';
-  $('fPri').value=a.priority||'Medium'; $('fSource').value=a.referralSource||''; $('fNext').value=a.nextFollowUp||'';
-  $('fWill').checked=!!a.willApply; $('fPath').value=a.applyPath||'TBD'; $('fPre').value=a.preStatus||'Researching';
-  $('fJd').value=a.jdLink||''; $('fJdSum').value=a.jdSummary||''; $('fNotes').value=a.notes||'';
-  document.querySelector('[data-tab="new"]').click();
-  // on next Add click, treat as update
-  $('addBtn').onclick=()=>{
-    const b={...a,
-      companyName:$('fCompany').value.trim(), jobTitle:$('fRole').value.trim(), jobUrl:$('fUrl').value.trim(),
-      location:$('fLoc').value.trim(), dateApplied:$('fDate').value, status:$('fStatus').value,
-      priority:$('fPri').value, referralSource:$('fSource').value.trim(), nextFollowUp:$('fNext').value,
-      willApply:$('fWill').checked, applyPath:$('fPath').value, preStatus:$('fPre').value,
-      jdLink:$('fJd').value.trim(), jdSummary:$('fJdSum').value.trim(), notes:$('fNotes').value.trim(),
-      updatedAt:new Date().toISOString()
-    };
-    applications[idx]=b; saveLocal(); renderAll(); toast('Updated', true); if(githubToken) pushNow();
-    $('addBtn').onclick=defaultAdd; // restore handler
-  };
-};
-const defaultAdd=$('addBtn').onclick;
-
-window.delItem=(idx)=>{
-  if(!confirm('Delete this entry?')) return;
-  applications.splice(idx,1); saveLocal(); renderAll(); toast('Deleted', true); if(githubToken) pushNow();
-};
-
-/* Filters */
-$('searchPre').oninput=renderPre; $('prePath').onchange=renderPre;
-$('searchActive').oninput=renderActive; $('filterStatus').onchange=renderActive;
-
-/* Sync */
-$('ghToken').value=githubToken||''; $('gistId').value=gistId||'';
-$('saveTok').onclick=()=>{ const v=$('ghToken').value.trim(); if(!v){ toast('Token empty',false); return;} githubToken=v; localStorage.setItem('githubToken',v); $('syncBtn').disabled=false; toast('Token saved',true); };
-$('clearTok').onclick=()=>{ githubToken=''; localStorage.removeItem('githubToken'); toast('Token cleared',true); };
-$('syncBtn').onclick=()=> pushNow();
-$('pullNow').onclick=()=> pullNow();
-$('pushNow').onclick=()=> pushNow();
-
-async function createGistIfNeeded(){
-  if(!githubToken) { toast('Add token',false); return false; }
-  if(gistId) return true;
-  toast('Creating backup...', true);
-  const payload={description:'Job Application Tracker (Clean)', public:false, files:{'job-applications.json':{content: JSON.stringify({applications, updatedAt:new Date().toISOString()},null,2)}}};
-  const r=await fetch('https://api.github.com/gists',{method:'POST',headers:{'Authorization':`token ${githubToken}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},body:JSON.stringify(payload)});
-  if(r.ok){ const j=await r.json(); gistId=j.id; localStorage.setItem('gistId',gistId); $('gistId').value=gistId; toast('Backup created',true); return true; }
-  toast('Create failed',false); return false;
-}
-async function pushNow(){
-  if(!githubToken){ toast('Add token',false); return; }
-  if(!gistId){ const ok=await createGistIfNeeded(); if(!ok) return; }
-  toast('Syncing...',true);
-  const payload={files:{'job-applications.json':{content: JSON.stringify({applications, updatedAt:new Date().toISOString()},null,2)}}};
-  const r=await fetch(`https://api.github.com/gists/${gistId}`,{method:'PATCH',headers:{'Authorization':`token ${githubToken}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},body:JSON.stringify(payload)});
-  if(r.ok) toast('Synced',true); else toast('Sync failed',false);
-}
-async function pullNow(){
-  if(!githubToken || !gistId){ toast('Add token & gist id',false); return; }
-  toast('Loading...',true);
-  const r=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`,'Accept':'application/vnd.github.v3+json'}});
-  if(r.ok){ const j=await r.json(); const file=j.files['job-applications.json']; if(file&&file.content){ const data=JSON.parse(file.content); if(Array.isArray(data.applications)){ applications=data.applications; saveLocal(); renderAll(); toast('Loaded',true); return; }} }
-  toast('Load failed',false);
+function renderApplications() { 
+  const tbody = document.getElementById('applicationsBody'); 
+  if (applications.length === 0) { 
+    tbody.innerHTML = `<tr><td colspan="11" class="empty-state"><div class="empty-state-icon">📭</div><p>No applications yet. Start tracking your job search journey above!</p></td></tr>`; 
+    return; 
+  }
+  
+  tbody.innerHTML = applications.map((app, index) => {
+    const willApplyBadge = app.willApply ? '<span class="badge">Pipeline</span>' : '-';
+    
+    return `<tr>
+      <td>${app.jobUrl ? `<a href="${app.jobUrl}" target="_blank" class="company-link">${escapeHtml(app.companyName)}</a>` : escapeHtml(app.companyName)}</td>
+      <td>${escapeHtml(app.jobTitle)}</td>
+      <td>${escapeHtml(app.location) || '-'}</td>
+      <td>${formatDate(app.dateApplied)}</td>
+      <td><span class="status-badge status-${(app.status || 'Applied').toLowerCase().replace(' ', '-')}">${app.status || 'Applied'}</span></td>
+      <td><span class="priority-${(app.priority || 'Medium').toLowerCase()}">${app.priority || 'Medium'}</span></td>
+      <td>${willApplyBadge}</td>
+      <td>${escapeHtml(app.salary) || '-'}</td>
+      <td>${escapeHtml(app.referralSource) || '-'}</td>
+      <td>${app.nextFollowUp ? formatDate(app.nextFollowUp) : '-'}</td>
+      <td>
+        <div class="action-buttons">
+          <button class="btn-edit" onclick="editApplication(${index})" title="Edit application">Edit</button>
+          <button class="btn-delete" onclick="deleteApplication(${index})" title="Delete application">Delete</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join(''); 
 }
 
-/* Auto-pull if local empty and creds exist */
-if(!applications.length && githubToken && gistId){ pullNow(); }
-renderAll();
+function showReferrals(index) { 
+  const app = applications[index]; 
+  const list = (app.referralContacts || []).map(c => `• ${c.name || ''} • ${c.role || ''}${c.email ? ` • ${c.email}` : ''}${c.linkedin ? ` • ${c.linkedin}` : ''}${c.notes ? ` • ${c.notes}` : ''}`).join('\n') || 'No contacts yet.'; 
+  alert(`Referrals for ${app.companyName}\n\n${list}`); 
+}
+
+function updateStats() { 
+  document.getElementById('totalApps').textContent = applications.length; 
+  document.getElementById('activeApps').textContent = applications.filter(a => ['Applied', 'Interviewing'].includes(a.status)).length; 
+  document.getElementById('pipelineApps').textContent = applications.filter(a => a.willApply).length; // NEW
+  document.getElementById('offerCount').textContent = applications.filter(a => a.status === 'Offer' || a.status === 'Accepted').length; 
+}
+
+function editApplication(index) { 
+  const app = applications[index]; 
+  editingIndex = index;
+  
+  // Fill all original fields
+  document.getElementById('companyName').value = app.companyName || '';
+  document.getElementById('jobTitle').value = app.jobTitle || '';
+  document.getElementById('jobUrl').value = app.jobUrl || '';
+  document.getElementById('location').value = app.location || '';
+  document.getElementById('dateApplied').value = app.dateApplied || '';
+  document.getElementById('status').value = app.status || 'Applied';
+  document.getElementById('salary').value = app.salary || '';
+  document.getElementById('priority').value = app.priority || 'Medium';
+  document.getElementById('contactPerson').value = app.contactPerson || '';
+  document.getElementById('contactEmail').value = app.contactEmail || '';
+  document.getElementById('referralSource').value = app.referralSource || '';
+  document.getElementById('nextFollowUp').value = app.nextFollowUp || '';
+  document.getElementById('notes').value = app.notes || '';
+  
+  // NEW: Fill pipeline fields
+  document.getElementById('willApply').checked = !!app.willApply;
+  document.getElementById('applyPath').value = app.applyPath || 'TBD';
+  document.getElementById('jdLink').value = app.jdLink || '';
+  document.getElementById('jdSummary').value = app.jdSummary || '';
+  document.getElementById('preStatus').value = app.preStatus || 'Researching';
+  renderReferralContactsEditor(app.referralContacts || []);
+  
+  document.getElementById('submitBtn').textContent = 'Update Application'; 
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function deleteApplication(index) { 
+  if (confirm('Are you sure you want to delete this application? This action cannot be undone.')) { 
+    applications.splice(index, 1); 
+    saveApplications(); 
+    renderApplications(); 
+    if (currentView === 'pipeline') renderPipelineTable();
+    updateStats(); 
+    filterApplications(); 
+    if (autoSyncEnabled && githubToken) syncToGist(); 
+  } 
+}
+
+function resetForm() { 
+  document.getElementById('applicationForm').reset(); 
+  document.getElementById('dateApplied').valueAsDate = new Date(); 
+  renderReferralContactsEditor([]); 
+  document.getElementById('submitBtn').textContent = 'Add Application'; 
+  editingIndex = -1; 
+}
+
+function filterApplications() { 
+  if (currentView === 'pipeline') {
+    renderPipelineTable();
+    return;
+  }
+  
+  // Original filtering logic
+  const statusFilter = document.getElementById('filterStatus').value; 
+  const priorityFilter = document.getElementById('filterPriority').value; 
+  const searchText = document.getElementById('searchCompany').value.toLowerCase();
+  
+  const filtered = applications.filter(app => { 
+    const matchesStatus = !statusFilter || app.status === statusFilter; 
+    const matchesPriority = !priorityFilter || app.priority === priorityFilter; 
+    const matchesSearch = !searchText || 
+      (app.companyName || '').toLowerCase().includes(searchText) || 
+      (app.jobTitle || '').toLowerCase().includes(searchText) || 
+      ((app.location || '').toLowerCase().includes(searchText)); 
+    return matchesStatus && matchesPriority && matchesSearch; 
+  });
+  
+  renderFilteredApplications(filtered); 
+}
+
+function renderFilteredApplications(filtered) { 
+  const tbody = document.getElementById('applicationsBody'); 
+  if (filtered.length === 0) { 
+    tbody.innerHTML = `<tr><td colspan="11" class="empty-state"><div class="empty-state-icon">🔍</div><p>No applications match your filters</p></td></tr>`; 
+    return; 
+  }
+  
+  tbody.innerHTML = filtered.map(app => { 
+    const index = applications.indexOf(app); 
+    const willApplyBadge = app.willApply ? '<span class="badge">Pipeline</span>' : '-';
+    
+    return `<tr>
+      <td>${app.jobUrl ? `<a href="${app.jobUrl}" target="_blank" class="company-link">${escapeHtml(app.companyName)}</a>` : escapeHtml(app.companyName)}</td>
+      <td>${escapeHtml(app.jobTitle)}</td>
+      <td>${escapeHtml(app.location) || '-'}</td>
+      <td>${formatDate(app.dateApplied)}</td>
+      <td><span class="status-badge status-${(app.status || 'Applied').toLowerCase().replace(' ', '-')}">${app.status || 'Applied'}</span></td>
+      <td><span class="priority-${(app.priority || 'Medium').toLowerCase()}">${app.priority || 'Medium'}</span></td>
+      <td>${willApplyBadge}</td>
+      <td>${escapeHtml(app.salary) || '-'}</td>
+      <td>${escapeHtml(app.referralSource) || '-'}</td>
+      <td>${app.nextFollowUp ? formatDate(app.nextFollowUp) : '-'}</td>
+      <td>
+        <div class="action-buttons">
+          <button class="btn-edit" onclick="editApplication(${index})">Edit</button>
+          <button class="btn-delete" onclick="deleteApplication(${index})">Delete</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join(''); 
+}
+
+function sortTable(column) { 
+  applications.sort((a, b) => { 
+    if ((a[column] || '') < (b[column] || '')) return -1; 
+    if ((a[column] || '') > (b[column] || '')) return 1; 
+    return 0; 
+  }); 
+  saveApplications(); 
+  renderApplications();
+  if (currentView === 'pipeline') renderPipelineTable();
+}
+
+/* ===== ALL ORIGINAL SYNC FUNCTIONS (unchanged) ===== */
+function setupGitHubSync() {
+  const token = document.getElementById('githubToken').value.trim();
+  if (!token) { githubToken = ''; localStorage.removeItem('githubToken'); updateCloudStatus(); return; }
+  githubToken = token; localStorage.setItem('githubToken', githubToken);
+  autoSyncEnabled = true; localStorage.setItem('autoSync', 'true');
+  if (!gistId) { createInitialGist(); } else { syncFromGist(true); }
+  updateCloudStatus();
+}
+
+async function createInitialGist() {
+  if (!githubToken) return;
+  updateSyncIndicator('syncing', 'Creating backup...');
+  try {
+    const gistData = { description: "Job Application Tracker - Nordic Blues Edition", public: false, files: { "job-applications.json": { content: JSON.stringify({ applications, lastUpdated: new Date().toISOString(), version: "1.0" }, null, 2) } } };
+    const r = await fetch('https://api.github.com/gists', { method: 'POST', headers: { 'Authorization': `token ${githubToken}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(gistData) });
+    if (r.ok) { const j = await r.json(); gistId = j.id; localStorage.setItem('gistId', gistId); document.getElementById('gistId').value = gistId; updateSyncIndicator('synced', 'Backup created!'); }
+    else throw new Error(r.status);
+  } catch (e) { console.error(e); updateSyncIndicator('error', 'Backup failed'); }
+}
+
+async function syncToGist() {
+  if (!githubToken || !gistId) return;
+  updateSyncIndicator('syncing', 'Syncing...');
+  try {
+    const gistData = { files: { "job-applications.json": { content: JSON.stringify({ applications, lastUpdated: new Date().toISOString(), version: "1.0" }, null, 2) } } };
+    const r = await fetch(`https://api.github.com/gists/${gistId}`, { method: 'PATCH', headers: { 'Authorization': `token ${githubToken}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(gistData) });
+    if (r.ok) { updateSyncIndicator('synced', 'Synced!'); setTimeout(updateCloudStatus, 2000); }
+    else throw new Error(r.status);
+  } catch (e) { console.error(e); updateSyncIndicator('error', 'Sync failed'); }
+}
+
+async function syncFromGist(force) {
+  if (!githubToken || !gistId) return;
+  updateSyncIndicator('syncing', 'Loading from cloud...');
+  try {
+    const r = await fetch(`https://api.github.com/gists/${gistId}`, { headers: { 'Authorization': `token ${githubToken}`, 'Accept': 'application/vnd.github.v3+json' } });
+    if (r.ok) {
+      const j = await r.json(); const file = j.files['job-applications.json'];
+      if (file && file.content) { const data = JSON.parse(file.content);
+        if (Array.isArray(data.applications)) {
+          if (force || (data.applications.length > applications.length)) {
+            applications = data.applications; localStorage.setItem('jobApplications', JSON.stringify(applications));
+            renderApplications(); 
+            if (currentView === 'pipeline') renderPipelineTable();
+            updateStats();
+          }
+        }
+      }
+      updateSyncIndicator('synced', 'Loaded from cloud!'); setTimeout(updateCloudStatus, 2000);
+    } else { throw new Error(r.status); }
+  } catch (e) { console.error(e); updateSyncIndicator('error', 'Load failed'); }
+}
+
+function manualSync() { if (githubToken) { if (gistId) syncToGist(); else createInitialGist(); } }
+
+function updateCloudStatus() {
+  const icon = document.getElementById('statusIcon'); const text = document.getElementById('statusText'); const box = document.getElementById('cloudStatus'); const btn = document.getElementById('syncBtn');
+  if (githubToken) { icon.textContent = '✅'; text.textContent = gistId ? 'Connected - Auto-backup enabled' : 'Connected - Setting up backup...'; box.className = 'cloud-status status-connected'; btn.disabled = false; }
+  else { icon.textContent = '❌'; text.textContent = 'Not connected - Enter GitHub token above'; box.className = 'cloud-status status-disconnected'; btn.disabled = true; }
+}
+
+function updateSyncIndicator(status, text) { 
+  const el = document.getElementById('syncIndicator'); el.className = `sync-indicator ${status}`; el.textContent = text; el.style.display = 'inline-flex'; 
+  const st = document.getElementById('statusText'); 
+  if (status === 'syncing') st.textContent = text; 
+  else if (status === 'synced') st.textContent = 'Connected - Auto-backup enabled'; 
+  else if (status === 'error') st.textContent = 'Connection error - Check token'; 
+}
+
+/* ===== ALL ORIGINAL EXPORT FUNCTIONS (unchanged) ===== */
+function formatDate(s) { if (!s) return '-'; const d = new Date(s); return d.toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'}); }
+
+function exportToJSON() { const dataStr = JSON.stringify(applications, null, 2); downloadFile(dataStr, 'job-applications-' + getDateStamp() + '.json', 'application/json'); }
+
+function exportToXML() { 
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<JobApplications>\n'; 
+  applications.forEach(app => { 
+    xml += '  <Application>\n'; const w = (k) => (app[k] || ''); 
+    xml += `    <CompanyName>${w('companyName')}</CompanyName>\n`; xml += `    <JobTitle>${w('jobTitle')}</JobTitle>\n`; xml += `    <JobURL>${w('jobUrl')}</JobURL>\n`; xml += `    <Location>${w('location')}</Location>\n`; xml += `    <DateApplied>${w('dateApplied')}</DateApplied>\n`; xml += `    <Status>${w('status')}</Status>\n`; xml += `    <Salary>${w('salary')}</Salary>\n`; xml += `    <Priority>${w('priority')}</Priority>\n`; xml += `    <ContactPerson>${w('contactPerson')}</ContactPerson>\n`; xml += `    <ContactEmail>${w('contactEmail')}</ContactEmail>\n`; xml += `    <ReferralSource>${w('referralSource')}</ReferralSource>\n`; xml += `    <NextFollowUp>${w('nextFollowUp')}</NextFollowUp>\n`; xml += `    <WillApply>${app.willApply ? 'Yes' : 'No'}</WillApply>\n`; xml += `    <ApplyPath>${w('applyPath')}</ApplyPath>\n`; xml += `    <JDLink>${w('jdLink')}</JDLink>\n`; xml += `    <JDSummary>${w('jdSummary')}</JDSummary>\n`; xml += `    <PreStatus>${w('preStatus')}</PreStatus>\n`; xml += `    <Notes>${w('notes')}</Notes>\n`; xml += '  </Application>\n'; 
+  }); 
+  xml += '</JobApplications>'; downloadFile(xml, 'job-applications-' + getDateStamp() + '.xml', 'application/xml'); 
+}
+
+function exportToCSV() { 
+  const headers = ['Company Name', 'Job Title', 'Job URL', 'Location', 'Date Applied', 'Status', 'Salary', 'Priority', 'Contact Person', 'Contact Email', 'Referral Source', 'Next Follow-up', 'Will Apply', 'Apply Path', 'JD Link', 'JD Summary', 'Pre-Status', 'Notes']; 
+  let csv = headers.join(',') + '\n'; 
+  applications.forEach(app => { 
+    const row = [app.companyName, app.jobTitle, app.jobUrl, app.location, app.dateApplied, app.status, app.salary, app.priority, app.contactPerson, app.contactEmail, app.referralSource, app.nextFollowUp, (app.willApply ? 'Yes' : 'No'), app.applyPath, app.jdLink, app.jdSummary, app.preStatus, app.notes].map(v => { if (!v) return ''; v = String(v); if (v.includes(',') || v.includes('"') || v.includes('\n')) return '"' + v.replace(/"/g, '""') + '"'; return v; }).join(','); 
+    csv += row + '\n'; 
+  }); 
+  downloadFile(csv, 'job-applications-' + getDateStamp() + '.csv', 'text/csv'); 
+}
+
+function getDateStamp() { const now = new Date(); return now.toISOString().split('T')[0]; }
+
+function downloadFile(content, filename, type) { 
+  const blob = new Blob([content], {type}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); 
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); 
+}
+
+// Auto pull on first load if token+gistId exist and local is empty
+if (githubToken && gistId && (!applications || applications.length === 0)) { syncFromGist(true); }
+
+// Periodic autosync every 5 minutes
+setInterval(() => { if (autoSyncEnabled && githubToken && gistId && applications.length > 0) { syncToGist(); } }, 5 * 60 * 1000);
 </script>
 </body>
 </html>
