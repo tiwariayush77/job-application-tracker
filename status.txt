@@ -1,0 +1,9 @@
+GitHub Pages deployment test - Job Application Tracker
+Timestamp: 2025-10-23 23:50 IST
+Status: Repository deployed successfully
+
+If you can see this file at:
+https://tiwariayush77.github.io/job-application-tracker/status.txt
+
+Then GitHub Pages is working and your site should be available at:
+https://tiwariayush77.github.io/job-application-tracker/
