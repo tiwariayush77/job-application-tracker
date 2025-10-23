@@ -54,6 +54,48 @@
             flex-wrap: wrap;
         }
 
+        .cloud-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #81c784;
+        }
+
+        .cloud-section h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cloud-section h3::before {
+            content: '☁️';
+        }
+
+        .gist-setup {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .cloud-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .status-connected { border-left: 4px solid #4caf50; }
+        .status-disconnected { border-left: 4px solid #f44336; }
+        .status-syncing { border-left: 4px solid #ff9800; }
+
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -219,6 +261,22 @@
 
         .btn-export:hover {
             background: #005f7f;
+        }
+
+        .btn-cloud {
+            background: #4caf50;
+            color: white;
+            font-size: 13px;
+            padding: 10px 18px;
+        }
+
+        .btn-cloud:hover {
+            background: #45a049;
+        }
+
+        .btn-cloud:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
         }
 
         .filter-section {
@@ -426,8 +484,51 @@
             line-height: 1.6;
         }
 
-        .alert-info strong {
+        .alert-success {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            color: #2e7d32;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .alert-info strong, .alert-success strong {
             font-weight: 700;
+        }
+
+        .sync-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .sync-indicator.syncing {
+            background: #fff3e0;
+            color: #f57c00;
+            animation: pulse 1s infinite;
+        }
+
+        .sync-indicator.synced {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .sync-indicator.error {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
         }
 
         @media (max-width: 768px) {
@@ -440,6 +541,10 @@
             }
 
             .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gist-setup {
                 grid-template-columns: 1fr;
             }
 
@@ -459,7 +564,7 @@
                 width: 100%;
             }
 
-            .btn-export {
+            .btn-export, .btn-cloud {
                 flex: 1;
             }
         }
@@ -468,7 +573,7 @@
 <body>
     <div class="container">
         <div class="alert-info">
-            <strong>🔒 Data Security:</strong> All your applications are saved securely in your browser's localStorage. Your data persists across refreshes and is 100% private. Export regularly for backup!
+            <strong>🔒 Enhanced Security:</strong> Data is stored locally in your browser AND can be automatically backed up to your private GitHub Gist. Enable cloud backup below for cross-device access!
         </div>
 
         <header>
@@ -480,8 +585,34 @@
                 <button class="btn-export" onclick="exportToJSON()">📥 JSON</button>
                 <button class="btn-export" onclick="exportToXML()">📥 XML</button>
                 <button class="btn-export" onclick="exportToCSV()">📥 CSV</button>
+                <button class="btn-cloud" id="syncBtn" onclick="manualSync()" disabled>☁️ Sync</button>
             </div>
         </header>
+
+        <div class="cloud-section">
+            <h3>Cloud Backup & Sync</h3>
+            <div class="gist-setup">
+                <div class="form-group">
+                    <label for="githubToken">GitHub Personal Access Token</label>
+                    <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx" onchange="setupGitHubSync()">
+                </div>
+                <div class="form-group">
+                    <label for="gistId">Gist ID (Auto-created if empty)</label>
+                    <input type="text" id="gistId" placeholder="Will auto-generate" readonly>
+                </div>
+            </div>
+            <div class="cloud-status" id="cloudStatus">
+                <span id="statusIcon">❌</span>
+                <span id="statusText">Not connected - Enter GitHub token above</span>
+                <div class="sync-indicator" id="syncIndicator" style="display: none;"></div>
+            </div>
+            <div style="margin-top: 15px; font-size: 12px; color: #666;">
+                <strong>Setup Instructions:</strong>
+                1. Go to <a href="https://github.com/settings/tokens" target="_blank">GitHub → Settings → Developer settings → Personal access tokens</a><br>
+                2. Create a "Classic" token with <strong>gist</strong> scope<br>
+                3. Paste token above - it's stored securely in your browser
+            </div>
+        </div>
 
         <div class="stats" id="stats">
             <div class="stat-card">
@@ -630,13 +761,27 @@
     <script>
         let applications = JSON.parse(localStorage.getItem('jobApplications')) || [];
         let editingIndex = -1;
+        let githubToken = localStorage.getItem('githubToken') || '';
+        let gistId = localStorage.getItem('gistId') || '';
+        let autoSyncEnabled = localStorage.getItem('autoSync') === 'true';
 
         // Set today's date as default
         document.getElementById('dateApplied').valueAsDate = new Date();
+        
+        // Initialize GitHub sync if token exists
+        if (githubToken) {
+            document.getElementById('githubToken').value = githubToken;
+            setupGitHubSync();
+        }
+        
+        if (gistId) {
+            document.getElementById('gistId').value = gistId;
+        }
 
         // Initialize
         renderApplications();
         updateStats();
+        updateCloudStatus();
 
         // Form submission
         document.getElementById('applicationForm').addEventListener('submit', function(e) {
@@ -673,6 +818,11 @@
             renderApplications();
             updateStats();
             resetForm();
+            
+            // Auto-sync after adding/editing
+            if (autoSyncEnabled && githubToken) {
+                syncToGist();
+            }
         });
 
         function saveApplications() {
@@ -759,6 +909,11 @@
                 renderApplications();
                 updateStats();
                 filterApplications();
+                
+                // Auto-sync after deletion
+                if (autoSyncEnabled && githubToken) {
+                    syncToGist();
+                }
             }
         }
 
@@ -837,6 +992,206 @@
             });
             saveApplications();
             renderApplications();
+        }
+
+        // GitHub Gist Integration
+        function setupGitHubSync() {
+            const token = document.getElementById('githubToken').value.trim();
+            if (!token) {
+                githubToken = '';
+                localStorage.removeItem('githubToken');
+                updateCloudStatus();
+                return;
+            }
+            
+            githubToken = token;
+            localStorage.setItem('githubToken', githubToken);
+            autoSyncEnabled = true;
+            localStorage.setItem('autoSync', 'true');
+            
+            // Test connection and create gist if needed
+            if (!gistId) {
+                createInitialGist();
+            } else {
+                syncFromGist();
+            }
+            
+            updateCloudStatus();
+        }
+
+        async function createInitialGist() {
+            if (!githubToken) return;
+            
+            updateSyncIndicator('syncing', 'Creating backup...');
+            
+            try {
+                const gistData = {
+                    description: "Job Application Tracker - Nordic Blues Edition",
+                    public: false,
+                    files: {
+                        "job-applications.json": {
+                            content: JSON.stringify({
+                                applications: applications,
+                                lastUpdated: new Date().toISOString(),
+                                version: "1.0"
+                            }, null, 2)
+                        }
+                    }
+                };
+                
+                const response = await fetch('https://api.github.com/gists', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gistData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    gistId = result.id;
+                    localStorage.setItem('gistId', gistId);
+                    document.getElementById('gistId').value = gistId;
+                    updateSyncIndicator('synced', 'Backup created!');
+                } else {
+                    throw new Error(`GitHub API error: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Failed to create gist:', error);
+                updateSyncIndicator('error', 'Backup failed');
+            }
+        }
+
+        async function syncToGist() {
+            if (!githubToken || !gistId) return;
+            
+            updateSyncIndicator('syncing', 'Syncing...');
+            
+            try {
+                const gistData = {
+                    files: {
+                        "job-applications.json": {
+                            content: JSON.stringify({
+                                applications: applications,
+                                lastUpdated: new Date().toISOString(),
+                                version: "1.0"
+                            }, null, 2)
+                        }
+                    }
+                };
+                
+                const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gistData)
+                });
+                
+                if (response.ok) {
+                    updateSyncIndicator('synced', 'Synced!');
+                    setTimeout(() => updateCloudStatus(), 2000);
+                } else {
+                    throw new Error(`GitHub API error: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Sync failed:', error);
+                updateSyncIndicator('error', 'Sync failed');
+            }
+        }
+
+        async function syncFromGist() {
+            if (!githubToken || !gistId) return;
+            
+            updateSyncIndicator('syncing', 'Loading from cloud...');
+            
+            try {
+                const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const gist = await response.json();
+                    const fileContent = gist.files['job-applications.json'].content;
+                    const data = JSON.parse(fileContent);
+                    
+                    if (data.applications && Array.isArray(data.applications)) {
+                        // Merge with local data (keep most recent)
+                        const cloudApps = data.applications;
+                        const localApps = applications;
+                        
+                        // Simple merge: use cloud data if it has more entries
+                        if (cloudApps.length > localApps.length) {
+                            applications = cloudApps;
+                            saveApplications();
+                            renderApplications();
+                            updateStats();
+                        }
+                    }
+                    
+                    updateSyncIndicator('synced', 'Loaded from cloud!');
+                    setTimeout(() => updateCloudStatus(), 2000);
+                } else {
+                    throw new Error(`GitHub API error: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Sync from gist failed:', error);
+                updateSyncIndicator('error', 'Load failed');
+            }
+        }
+
+        function manualSync() {
+            if (githubToken) {
+                if (gistId) {
+                    syncToGist();
+                } else {
+                    createInitialGist();
+                }
+            }
+        }
+
+        function updateCloudStatus() {
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+            const cloudStatus = document.getElementById('cloudStatus');
+            const syncBtn = document.getElementById('syncBtn');
+            
+            if (githubToken) {
+                statusIcon.textContent = '✅';
+                statusText.textContent = gistId ? 
+                    `Connected - Auto-backup enabled` : 
+                    'Connected - Setting up backup...';
+                cloudStatus.className = 'cloud-status status-connected';
+                syncBtn.disabled = false;
+            } else {
+                statusIcon.textContent = '❌';
+                statusText.textContent = 'Not connected - Enter GitHub token above';
+                cloudStatus.className = 'cloud-status status-disconnected';
+                syncBtn.disabled = true;
+            }
+        }
+
+        function updateSyncIndicator(status, text) {
+            const indicator = document.getElementById('syncIndicator');
+            indicator.className = `sync-indicator ${status}`;
+            indicator.textContent = text;
+            indicator.style.display = 'inline-flex';
+            
+            const statusText = document.getElementById('statusText');
+            if (status === 'syncing') {
+                statusText.textContent = text;
+            } else if (status === 'synced') {
+                statusText.textContent = 'Connected - Auto-backup enabled';
+            } else if (status === 'error') {
+                statusText.textContent = 'Connection error - Check token';
+            }
         }
 
         function formatDate(dateString) {
@@ -957,6 +1312,13 @@
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
         }
+
+        // Auto-sync every 5 minutes if enabled
+        setInterval(() => {
+            if (autoSyncEnabled && githubToken && gistId && applications.length > 0) {
+                syncToGist();
+            }
+        }, 5 * 60 * 1000); // 5 minutes
     </script>
 </body>
 </html>
