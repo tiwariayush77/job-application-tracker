@@ -4,9 +4,266 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Referral Tracking Dashboard | Nordic Blues</title>
-    <!-- Minimal shell to avoid 404, full content already prepared in earlier step -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #288cfa 0%, #103766 100%); padding: 20px; min-height: 100vh; }
+        /* Suite Navigation */
+        .suite-navigation { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 2px solid #e8f2ff; margin-bottom: 20px; border-radius: 12px; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; flex-wrap: wrap; gap: 15px; }
+        .nav-home { color: #103766; text-decoration: none; font-weight: 700; font-size: 18px; transition: all 0.3s ease; }
+        .nav-home:hover { color: #288cfa; }
+        .nav-tools { display: flex; gap: 20px; align-items: center; }
+        .nav-current { background: linear-gradient(135deg, #288cfa 0%, #103766 100%); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; }
+        .nav-tool { color: #5a7ba6; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; transition: all 0.3s ease; border: 2px solid transparent; }
+        .nav-tool:hover { color: #288cfa; border-color: #288cfa; background: rgba(40, 140, 250, 0.1); }
+        @media (max-width: 768px) { .nav-container { flex-direction: column; text-align: center; } .nav-tools { flex-wrap: wrap; justify-content: center; } }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(16, 55, 102, 0.3); padding: 35px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px; }
+        h1 { color: #103766; font-size: 32px; font-weight: 700; }
+        .subtitle { color: #5a7ba6; margin-bottom: 25px; font-size: 15px; }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .cloud-section { background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #81c784; }
+        .cloud-section h3 { color: #2e7d32; margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+        .cloud-section h3::before { content: '☁️'; }
+        .gist-setup { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .cloud-status { display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,255,255,0.8); border-radius: 8px; font-size: 14px; }
+        .status-connected { border-left: 4px solid #4caf50; }
+        .status-disconnected { border-left: 4px solid #f44336; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 18px; margin-bottom: 35px; }
+        .stat-card { background: linear-gradient(135deg, #288cfa 0%, #103766 100%); color: white; padding: 22px; border-radius: 12px; text-align: center; box-shadow: 0 6px 20px rgba(40, 140, 250, 0.25); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(40, 140, 250, 0.4); }
+        .stat-card h3 { font-size: 36px; margin-bottom: 8px; font-weight: 700; }
+        .stat-card p { font-size: 13px; opacity: 0.95; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-section { background: linear-gradient(135deg, #f5f9ff 0%, #e8f2ff 100%); padding: 28px; border-radius: 12px; margin-bottom: 35px; border: 1px solid #d1e3f8; }
+        .form-section h2 { color: #103766; margin-bottom: 22px; font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .form-section h2::before { content: '🤝'; font-size: 18px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .form-group { display: flex; flex-direction: column; transition: all 0.3s ease; }
+        .form-group.hidden { display: none; }
+        .form-group.show { animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        label { font-weight: 600; margin-bottom: 6px; color: #103766; font-size: 13px; }
+        label .required { color: #007ea7; }
+        label .linkedin-icon { color: #0077b5; font-size: 16px; }
+        input, select, textarea { padding: 11px 14px; border: 2px solid #d1e3f8; border-radius: 8px; font-size: 14px; transition: all 0.3s; background: white; color: #333; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #288cfa; box-shadow: 0 0 0 3px rgba(40, 140, 250, 0.1); }
+        .linkedin-input { border-color: #0077b5 !important; }
+        .linkedin-input:focus { border-color: #0077b5 !important; box-shadow: 0 0 0 3px rgba(0,119,181,0.1) !important; }
+        textarea { resize: vertical; min-height: 70px; font-family: inherit; }
+        .button-group { display: flex; gap: 12px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
+        button { padding: 12px 26px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: linear-gradient(135deg, #288cfa 0%, #103766 100%); color: white; box-shadow: 0 4px 12px rgba(40, 140, 250, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(40, 140, 250, 0.5); }
+        .btn-secondary { background: #8d99ae; color: white; }
+        .btn-secondary:hover { background: #6c757d; }
+        .btn-export { background: #007ea7; color: white; font-size: 13px; padding: 10px 18px; }
+        .btn-export:hover { background: #005f7f; }
+        .btn-cloud { background: #4caf50; color: white; font-size: 13px; padding: 10px 18px; }
+        .btn-cloud:hover { background: #45a049; }
+        .btn-cloud:disabled { background: #cccccc; cursor: not-allowed; }
+        .filter-section { display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; align-items: center; }
+        .filter-section select, .filter-section input { padding: 10px 14px; border: 2px solid #d1e3f8; border-radius: 8px; background: white; font-size: 14px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .section-header h2 { color: #103766; font-size: 22px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .section-header h2::before { content: '📊'; }
+        .table-container { overflow-x: auto; border-radius: 12px; box-shadow: 0 4px 16px rgba(16, 55, 102, 0.1); }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        thead { background: linear-gradient(135deg, #288cfa 0%, #103766 100%); color: white; }
+        th { padding: 16px; text-align: left; font-weight: 600; font-size: 13px; cursor: pointer; user-select: none; text-transform: uppercase; letter-spacing: 0.5px; }
+        th:hover { background: rgba(255,255,255,0.1); }
+        td { padding: 14px 16px; border-bottom: 1px solid #e8f2ff; font-size: 14px; }
+        tbody tr { transition: background 0.2s; }
+        tbody tr:hover { background: #f5f9ff; }
+        .response-badge { padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; letter-spacing: 0.3px; }
+        .response-helping { background: #c8e6c9; color: #2e7d32; }
+        .response-no-response { background: #fff3e0; color: #f57c00; }
+        .response-declined { background: #ffebee; color: #d32f2f; }
+        .response-pending { background: #e3f2fd; color: #1976d2; }
+        .response-follow-up { background: #f3e5f5; color: #7b1fa2; }
+        .priority-high { color: #d32f2f; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+        .priority-high::before { content: '🔴'; font-size: 10px; }
+        .priority-medium { color: #f57c00; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+        .priority-medium::before { content: '🟡'; font-size: 10px; }
+        .priority-low { color: #388e3c; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+        .priority-low::before { content: '🟢'; font-size: 10px; }
+        .action-buttons { display: flex; gap: 6px; }
+        .btn-edit, .btn-delete { padding: 7px 14px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; transition: all 0.2s; font-weight: 600; }
+        .btn-edit { background: #288cfa; color: white; }
+        .btn-edit:hover { background: #1976d2; transform: scale(1.05); }
+        .btn-delete { background: #dc3545; color: white; }
+        .btn-delete:hover { background: #c82333; transform: scale(1.05); }
+        .company-link { color: #288cfa; text-decoration: none; font-weight: 600; transition: color 0.2s; }
+        .company-link:hover { color: #103766; text-decoration: underline; }
+        .linkedin-link { color: #0077b5; text-decoration: none; font-weight: 600; transition: color 0.2s; }
+        .linkedin-link:hover { color: #005885; text-decoration: underline; }
+        .empty-state { text-align: center; padding: 80px 20px; color: #8d99ae; }
+        .empty-state-icon { font-size: 64px; margin-bottom: 20px; opacity: 0.5; }
+        .empty-state p { font-size: 16px; }
+        .alert-info { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #288cfa; padding: 16px 20px; border-radius: 8px; margin-bottom: 25px; color: #103766; font-size: 14px; line-height: 1.6; }
+        .sync-indicator { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .sync-indicator.syncing { background: #fff3e0; color: #f57c00; animation: pulse 1s infinite; }
+        .sync-indicator.synced { background: #e8f5e9; color: #2e7d32; }
+        .sync-indicator.error { background: #ffebee; color: #d32f2f; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        .materials-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .material-tag { background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        .contact-info { display: flex; flex-direction: column; gap: 4px; }
+        .contact-details { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .contact-tag { background: #f0f8ff; color: #0077b5; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
+        @media (max-width: 768px) { .container { padding: 20px; } h1 { font-size: 24px; } .form-grid { grid-template-columns: 1fr; } .gist-setup { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2, 1fr); } table { font-size: 12px; } th, td { padding: 10px; } .header-actions { width: 100%; } .btn-export, .btn-cloud { flex: 1; } }
+    </style>
 </head>
 <body>
-    <script>location.href='../';</script>
+<nav class="suite-navigation">
+    <div class="nav-container">
+        <a href="../" class="nav-home">🚀 Career Suite</a>
+        <div class="nav-tools">
+            <a href="../applications/" class="nav-tool">📋 Applications</a>
+            <span class="nav-current">🤝 Referrals</span>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="alert-info">
+        <strong>🔒 Enhanced Security:</strong> Data is stored locally in your browser AND can be automatically backed up to your private GitHub Gist. Enable cloud backup below for cross-device access!
+    </div>
+    <header>
+        <div>
+            <h1>🤝 Referral Tracking Dashboard</h1>
+            <p class="subtitle">Professional Nordic Blues Edition • Track Your Referral Requests & Responses</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-export" onclick="exportToJSON()">📥 JSON</button>
+            <button class="btn-export" onclick="exportToXML()">📥 XML</button>
+            <button class="btn-export" onclick="exportToCSV()">📥 CSV</button>
+            <button class="btn-cloud" id="syncBtn" onclick="manualSync()" disabled>☁️ Sync</button>
+        </div>
+    </header>
+    <div class="cloud-section">
+        <h3>Cloud Backup & Sync</h3>
+        <div class="gist-setup">
+            <div class="form-group">
+                <label for="githubToken">GitHub Personal Access Token</label>
+                <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx" onchange="setupGitHubSync()">
+            </div>
+            <div class="form-group">
+                <label for="gistId">Gist ID (Auto-created if empty)</label>
+                <input type="text" id="gistId" placeholder="Will auto-generate" readonly>
+            </div>
+        </div>
+        <div class="cloud-status" id="cloudStatus">
+            <span id="statusIcon">❌</span>
+            <span id="statusText">Not connected - Enter GitHub token above</span>
+            <div class="sync-indicator" id="syncIndicator" style="display:none;"></div>
+        </div>
+    </div>
+    <div class="stats" id="stats">
+        <div class="stat-card"><h3 id="totalReferrals">0</h3><p>Total Referrals</p></div>
+        <div class="stat-card"><h3 id="helpingCount">0</h3><p>Helping</p></div>
+        <div class="stat-card"><h3 id="pendingCount">0</h3><p>Pending</p></div>
+        <div class="stat-card"><h3 id="noResponseCount">0</h3><p>No Response</p></div>
+    </div>
+    <div class="form-section">
+        <h2>Add New Referral Request</h2>
+        <form id="referralForm">
+            <div class="form-grid">
+                <div class="form-group"><label for="contactName">Contact Person <span class="required">*</span></label><input type="text" id="contactName" required placeholder="e.g., John Smith"></div>
+                <div class="form-group"><label for="contactDesignation">Designation/Role</label><input type="text" id="contactDesignation" placeholder="e.g., Senior Product Manager"></div>
+                <div class="form-group"><label for="targetCompany">Target Company <span class="required">*</span></label><input type="text" id="targetCompany" required placeholder="e.g., Google, Microsoft"></div>
+                <div class="form-group"><label for="jobRole">Job Role</label><input type="text" id="jobRole" placeholder="e.g., Product Manager, SDE-2"></div>
+                <div class="form-group"><label for="dateRequested">Date Requested</label><input type="date" id="dateRequested"></div>
+                <div class="form-group"><label for="requestMethod">Request Method</label><select id="requestMethod" onchange="toggleLinkedInField()"><option value="LinkedIn">LinkedIn Message</option><option value="Email">Email</option><option value="WhatsApp">WhatsApp</option><option value="Phone">Phone Call</option><option value="In Person">In Person</option><option value="Slack">Slack</option><option value="Other">Other</option></select></div>
+                <div class="form-group" id="linkedinProfileGroup"><label for="linkedinProfile"><span class="linkedin-icon">💼</span> LinkedIn Profile URL</label><input type="url" id="linkedinProfile" class="linkedin-input" placeholder="https://linkedin.com/in/username"></div>
+                <div class="form-group"><label for="contactEmail">Contact Email</label><input type="email" id="contactEmail" placeholder="john.smith@company.com"></div>
+                <div class="form-group"><label for="materialsSent">Materials Sent</label><input type="text" id="materialsSent" placeholder="Resume, Portfolio, Cover Letter (comma separated)"></div>
+                <div class="form-group"><label for="responseCategory">Response Category</label><select id="responseCategory"><option value="Pending">⏳ Pending</option><option value="Helping">✅ Helping</option><option value="No Response">❌ No Response</option><option value="Declined">❌ Declined</option><option value="Follow Up">🔄 Follow Up</option></select></div>
+                <div class="form-group"><label for="priority">Priority</label><select id="priority"><option value="Medium">Medium</option><option value="High">High</option><option value="Low">Low</option></select></div>
+                <div class="form-group"><label for="connectionStrength">Connection Strength</label><select id="connectionStrength"><option value="Strong">Strong (Close friend/colleague)</option><option value="Medium">Medium (Professional contact)</option><option value="Weak">Weak (Acquaintance/Cold contact)</option></select></div>
+                <div class="form-group"><label for="followUpDate">Next Follow-up Date</label><input type="date" id="followUpDate"></div>
+            </div>
+            <div class="form-group"><label for="responseDetails">Response Details</label><textarea id="responseDetails" placeholder="Their response, next steps, referral status..."></textarea></div>
+            <div class="form-group"><label for="notes">Additional Notes</label><textarea id="notes" placeholder="How you know them, conversation context, follow-up plans..."></textarea></div>
+            <div class="button-group"><button type="button" class="btn-secondary" onclick="resetForm()">Clear Form</button><button type="submit" class="btn-primary" id="submitBtn">Add Referral Request</button></div>
+        </form>
+    </div>
+    <div class="section-header">
+        <h2>My Referral Requests</h2>
+        <div class="filter-section">
+            <select id="filterResponse" onchange="filterReferrals()"><option value="">All Responses</option><option value="Pending">⏳ Pending</option><option value="Helping">✅ Helping</option><option value="No Response">❌ No Response</option><option value="Declined">❌ Declined</option><option value="Follow Up">🔄 Follow Up</option></select>
+            <select id="filterPriority" onchange="filterReferrals()"><option value="">All Priorities</option><option value="High">High Priority</option><option value="Medium">Medium Priority</option><option value="Low">Low Priority</option></select>
+            <input type="text" id="searchContact" placeholder="🔍 Search contact or company..." oninput="filterReferrals()">
+        </div>
+    </div>
+    <div class="table-container">
+        <table id="referralsTable">
+            <thead><tr><th onclick="sortTable('contactName')">Contact Person ↕</th><th onclick="sortTable('targetCompany')">Target Company ↕</th><th onclick="sortTable('jobRole')">Job Role ↕</th><th onclick="sortTable('dateRequested')">Date Requested ↕</th><th onclick="sortTable('requestMethod')">Method ↕</th><th>Materials Sent</th><th onclick="sortTable('responseCategory')">Response ↕</th><th onclick="sortTable('priority')">Priority ↕</th><th>Follow-up</th><th>Actions</th></tr></thead>
+            <tbody id="referralsBody"><tr><td colspan="10" class="empty-state"><div class="empty-state-icon">🤝</div><p>No referral requests yet. Start tracking your networking efforts above!</p></td></tr></tbody>
+        </table>
+    </div>
+</div>
+<script>
+let referrals = JSON.parse(localStorage.getItem('referralRequests')) || [];
+let editingIndex = -1;
+let githubToken = localStorage.getItem('githubToken') || '';
+let gistId = localStorage.getItem('gistId') || '';
+let autoSyncEnabled = localStorage.getItem('autoSync') === 'true';
+
+document.getElementById('dateRequested').valueAsDate = new Date();
+if (githubToken) { document.getElementById('githubToken').value = githubToken; setupGitHubSync(); }
+if (gistId) { document.getElementById('gistId').value = gistId; }
+
+toggleLinkedInField();
+renderReferrals();
+updateStats();
+updateCloudStatus();
+
+function escapeHtml(text){ if(!text) return ''; const map={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#039;'}; return text.replace(/[&<>"']/g,m=>map[m]); }
+function formatDate(d){ if(!d) return '-'; const x=new Date(d); return x.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+function formatMaterials(s){ if(!s) return ''; return s.split(',').map(m=>`<span class="material-tag">${m.trim()}</span>`).join(''); }
+function formatContactInfo(ref){ let h=`<div class="contact-info">`; h+=`<strong>${escapeHtml(ref.contactName)}</strong>`; if(ref.contactDesignation){ h+=`<small>${escapeHtml(ref.contactDesignation)}</small>`; } const bits=[]; if(ref.requestMethod==='LinkedIn' && ref.linkedinProfile){ const profileName = ref.linkedinProfile.includes('linkedin.com')? (ref.linkedinProfile.split('/in/')[1]||'Profile').replace('/','') : 'Profile'; bits.push(`<a href="${ref.linkedinProfile}" target="_blank" class="linkedin-link">💼 ${profileName}</a>`); } if(ref.contactEmail){ bits.push(`<a href="mailto:${ref.contactEmail}" class="company-link">📧</a>`); } if(bits.length){ h+=`<div class="contact-details">${bits.join(' ')}</div>`; } h+=`</div>`; return h; }
+function toggleLinkedInField(){ const m=document.getElementById('requestMethod').value; const g=document.getElementById('linkedinProfileGroup'); if(m==='LinkedIn'){ g.classList.remove('hidden'); g.classList.add('show'); } else { g.classList.add('hidden'); g.classList.remove('show'); } }
+
+document.getElementById('referralForm').addEventListener('submit',function(e){ e.preventDefault(); const referral={ id:Date.now(), contactName:val('contactName'), contactDesignation:val('contactDesignation'), targetCompany:val('targetCompany'), jobRole:val('jobRole'), dateRequested:val('dateRequested'), requestMethod:val('requestMethod'), linkedinProfile:val('linkedinProfile'), contactEmail:val('contactEmail'), materialsSent:val('materialsSent'), responseCategory:val('responseCategory'), priority:val('priority'), connectionStrength:val('connectionStrength'), followUpDate:val('followUpDate'), responseDetails:val('responseDetails'), notes:val('notes'), createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() }; if(editingIndex>=0){ referrals[editingIndex]={ ...referrals[editingIndex], ...referral, updatedAt:new Date().toISOString() }; editingIndex=-1; btn('submitBtn').textContent='Add Referral Request'; } else { referrals.unshift(referral);} saveReferrals(); renderReferrals(); updateStats(); resetForm(); if(autoSyncEnabled && githubToken){ syncToGist(); } });
+function val(id){ return document.getElementById(id).value; }
+function btn(id){ return document.getElementById(id); }
+function saveReferrals(){ localStorage.setItem('referralRequests', JSON.stringify(referrals)); }
+function renderReferrals(){ const tbody=document.getElementById('referralsBody'); if(referrals.length===0){ tbody.innerHTML = `<tr><td colspan="10" class="empty-state"><div class="empty-state-icon">🤝</div><p>No referral requests yet. Start tracking your networking efforts above!</p></td></tr>`; return; } tbody.innerHTML = referrals.map((ref,idx)=>`
+<tr>
+<td>${formatContactInfo(ref)}</td>
+<td><strong>${escapeHtml(ref.targetCompany)}</strong></td>
+<td>${escapeHtml(ref.jobRole)||'-'}</td>
+<td>${ref.dateRequested?formatDate(ref.dateRequested):'-'}</td>
+<td>${escapeHtml(ref.requestMethod)||'-'} ${ref.requestMethod==='LinkedIn'?'<span class="contact-tag">LinkedIn</span>':''}</td>
+<td><div class="materials-list">${formatMaterials(ref.materialsSent)}</div></td>
+<td><span class="response-badge response-${(ref.responseCategory||'Pending').toLowerCase().replace(' ','-')}">${ref.responseCategory||'Pending'}</span></td>
+<td><span class="priority-${(ref.priority||'Medium').toLowerCase()}">${ref.priority||'Medium'}</span></td>
+<td>${ref.followUpDate?formatDate(ref.followUpDate):'-'}</td>
+<td><div class="action-buttons"><button class="btn-edit" onclick="editReferral(${idx})">Edit</button><button class="btn-delete" onclick="deleteReferral(${idx})">Delete</button></div></td>
+</tr>`).join(''); }
+function updateStats(){ byId('totalReferrals').textContent = referrals.length; byId('helpingCount').textContent = referrals.filter(r=>r.responseCategory==='Helping').length; byId('pendingCount').textContent = referrals.filter(r=>r.responseCategory==='Pending').length; byId('noResponseCount').textContent = referrals.filter(r=>r.responseCategory==='No Response').length; }
+function byId(id){ return document.getElementById(id); }
+function editReferral(index){ const ref=referrals[index]; editingIndex=index; setVal('contactName', ref.contactName); setVal('contactDesignation', ref.contactDesignation); setVal('targetCompany', ref.targetCompany); setVal('jobRole', ref.jobRole); setVal('dateRequested', ref.dateRequested); setVal('requestMethod', ref.requestMethod||'LinkedIn'); setVal('linkedinProfile', ref.linkedinProfile||''); setVal('contactEmail', ref.contactEmail||''); setVal('materialsSent', ref.materialsSent||''); setVal('responseCategory', ref.responseCategory||'Pending'); setVal('priority', ref.priority||'Medium'); setVal('connectionStrength', ref.connectionStrength||'Medium'); setVal('followUpDate', ref.followUpDate||''); setVal('responseDetails', ref.responseDetails||''); setVal('notes', ref.notes||''); toggleLinkedInField(); btn('submitBtn').textContent='Update Referral Request'; window.scrollTo({top:0, behavior:'smooth'}); }
+function setVal(id,v){ document.getElementById(id).value = v||''; }
+function deleteReferral(index){ if(confirm('Are you sure you want to delete this referral request? This action cannot be undone.')){ referrals.splice(index,1); saveReferrals(); renderReferrals(); updateStats(); filterReferrals(); if(autoSyncEnabled && githubToken){ syncToGist(); } } }
+function resetForm(){ document.getElementById('referralForm').reset(); byId('dateRequested').valueAsDate=new Date(); setVal('responseCategory','Pending'); btn('submitBtn').textContent='Add Referral Request'; editingIndex=-1; toggleLinkedInField(); }
+function filterReferrals(){ const rf=val('filterResponse'), pf=val('filterPriority'), s=(byId('searchContact').value||'').toLowerCase(); const filtered=referrals.filter(ref=>{ const mR=!rf||ref.responseCategory===rf; const mP=!pf||ref.priority===pf; const mS=!s||(ref.contactName||'').toLowerCase().includes(s)||(ref.targetCompany||'').toLowerCase().includes(s)||(ref.jobRole||'').toLowerCase().includes(s); return mR&&mP&&mS;}); renderFilteredReferrals(filtered); }
+function renderFilteredReferrals(list){ const tbody=byId('referralsBody'); if(list.length===0){ tbody.innerHTML = `<tr><td colspan="10" class="empty-state"><div class="empty-state-icon">🔍</div><p>No referral requests match your filters</p></td></tr>`; return; } tbody.innerHTML = list.map(ref=>{ const idx=referrals.indexOf(ref); return `<tr><td>${formatContactInfo(ref)}</td><td><strong>${escapeHtml(ref.targetCompany)}</strong></td><td>${escapeHtml(ref.jobRole)||'-'}</td><td>${ref.dateRequested?formatDate(ref.dateRequested):'-'}</td><td>${escapeHtml(ref.requestMethod)||'-'} ${ref.requestMethod==='LinkedIn'?'<span class="contact-tag">LinkedIn</span>':''}</td><td><div class="materials-list">${formatMaterials(ref.materialsSent)}</div></td><td><span class="response-badge response-${(ref.responseCategory||'Pending').toLowerCase().replace(' ','-')}">${ref.responseCategory||'Pending'}</span></td><td><span class="priority-${(ref.priority||'Medium').toLowerCase()}">${ref.priority||'Medium'}</span></td><td>${ref.followUpDate?formatDate(ref.followUpDate):'-'}</td><td><div class="action-buttons"><button class="btn-edit" onclick="editReferral(${idx})">Edit</button><button class="btn-delete" onclick="deleteReferral(${idx})">Delete</button></div></td></tr>`; }).join(''); }
+function sortTable(col){ referrals.sort((a,b)=>{ if((a[col]||'')<(b[col]||'')) return -1; if((a[col]||'')>(b[col]||'')) return 1; return 0; }); saveReferrals(); renderReferrals(); }
+function setupGitHubSync(){ const token=byId('githubToken').value.trim(); if(!token){ githubToken=''; localStorage.removeItem('githubToken'); updateCloudStatus(); return; } githubToken=token; localStorage.setItem('githubToken', githubToken); autoSyncEnabled=true; localStorage.setItem('autoSync','true'); if(!gistId){ createInitialGist(); } else { syncFromGist(true); } updateCloudStatus(); }
+async function createInitialGist(){ if(!githubToken) return; updateSyncIndicator('syncing','Creating backup...'); try{ const gistData={ description:'Referral Tracking Dashboard - Nordic Blues Edition', public:false, files:{ 'referral-requests.json':{ content: JSON.stringify({ referrals, lastUpdated:new Date().toISOString(), version:'1.0' }, null, 2) } } }; const resp=await fetch('https://api.github.com/gists',{ method:'POST', headers:{ 'Authorization':`token ${githubToken}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json' }, body:JSON.stringify(gistData)}); if(resp.ok){ const data=await resp.json(); gistId=data.id; localStorage.setItem('gistId', gistId); byId('gistId').value=gistId; updateSyncIndicator('synced','Backup created!'); } else { throw new Error(`HTTP ${resp.status}`); } }catch(e){ console.error('Gist creation error:',e); updateSyncIndicator('error','Backup failed'); } }
+async function syncToGist(){ if(!githubToken||!gistId) return; updateSyncIndicator('syncing','Syncing...'); try{ const gistData={ files:{ 'referral-requests.json':{ content: JSON.stringify({ referrals, lastUpdated:new Date().toISOString(), version:'1.0' }, null, 2) } } }; const resp=await fetch(`https://api.github.com/gists/${gistId}`,{ method:'PATCH', headers:{ 'Authorization':`token ${githubToken}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json' }, body:JSON.stringify(gistData)}); if(resp.ok){ updateSyncIndicator('synced','Synced!'); setTimeout(updateCloudStatus,2000); } else { throw new Error(`HTTP ${resp.status}`); } }catch(e){ console.error('Sync error:',e); updateSyncIndicator('error','Sync failed'); } }
+async function syncFromGist(force){ if(!githubToken||!gistId) return; updateSyncIndicator('syncing','Loading from cloud...'); try{ const resp=await fetch(`https://api.github.com/gists/${gistId}`,{ headers:{ 'Authorization':`token ${githubToken}`,'Accept':'application/vnd.github.v3+json' } }); if(resp.ok){ const data=await resp.json(); const file=data.files['referral-requests.json']; if(file&&file.content){ const cloud=JSON.parse(file.content); if(Array.isArray(cloud.referrals)){ if(force||(cloud.referrals.length>referrals.length)){ referrals=cloud.referrals; localStorage.setItem('referralRequests', JSON.stringify(referrals)); renderReferrals(); updateStats(); } } } updateSyncIndicator('synced','Loaded from cloud!'); setTimeout(updateCloudStatus,2000); } else { throw new Error(`HTTP ${resp.status}`); } }catch(e){ console.error('Load error:',e); updateSyncIndicator('error','Load failed'); } }
+function manualSync(){ if(githubToken){ if(gistId){ syncToGist(); } else { createInitialGist(); } } }
+function updateCloudStatus(){ const icon=byId('statusIcon'); const text=byId('statusText'); const box=byId('cloudStatus'); const btn=byId('syncBtn'); if(githubToken){ icon.textContent='✅'; text.textContent=gistId?'Connected - Auto-backup enabled':'Connected - Setting up backup...'; box.className='cloud-status status-connected'; btn.disabled=false; } else { icon.textContent='❌'; text.textContent='Not connected - Enter GitHub token above'; box.className='cloud-status status-disconnected'; btn.disabled=true; } }
+function updateSyncIndicator(status,text){ const ind=byId('syncIndicator'); ind.className=`sync-indicator ${status}`; ind.textContent=text; ind.style.display='inline-flex'; const t=byId('statusText'); if(status==='syncing'){ t.textContent=text; } else if(status==='synced'){ t.textContent='Connected - Auto-backup enabled'; } else if(status==='error'){ t.textContent='Connection error - Check token'; } }
+function exportToJSON(){ const s=JSON.stringify(referrals,null,2); downloadFile(s,'referral-requests-'+stamp()+'.json','application/json'); }
+function exportToXML(){ let xml='<?xml version="1.0" encoding="UTF-8"?>\n<ReferralRequests>\n'; referrals.forEach(ref=>{ const gv=k=>escapeHtml(ref[k]||''); xml+='  <ReferralRequest>\n'; xml+=`    <ContactName>${gv('contactName')}</ContactName>\n`; xml+=`    <ContactDesignation>${gv('contactDesignation')}</ContactDesignation>\n`; xml+=`    <TargetCompany>${gv('targetCompany')}</TargetCompany>\n`; xml+=`    <JobRole>${gv('jobRole')}</JobRole>\n`; xml+=`    <DateRequested>${gv('dateRequested')}</DateRequested>\n`; xml+=`    <RequestMethod>${gv('requestMethod')}</RequestMethod>\n`; xml+=`    <LinkedInProfile>${gv('linkedinProfile')}</LinkedInProfile>\n`; xml+=`    <ContactEmail>${gv('contactEmail')}</ContactEmail>\n`; xml+=`    <MaterialsSent>${gv('materialsSent')}</MaterialsSent>\n`; xml+=`    <ResponseCategory>${gv('responseCategory')}</ResponseCategory>\n`; xml+=`    <Priority>${gv('priority')}</Priority>\n`; xml+=`    <ConnectionStrength>${gv('connectionStrength')}</ConnectionStrength>\n`; xml+=`    <FollowUpDate>${gv('followUpDate')}</FollowUpDate>\n`; xml+=`    <ResponseDetails>${gv('responseDetails')}</ResponseDetails>\n`; xml+=`    <Notes>${gv('notes')}</Notes>\n`; xml+='  </ReferralRequest>\n'; }); xml+='</ReferralRequests>'; downloadFile(xml,'referral-requests-'+stamp()+'.xml','application/xml'); }
+function exportToCSV(){ const headers=['Contact Name','Designation','Target Company','Job Role','Date Requested','Request Method','LinkedIn Profile','Contact Email','Materials Sent','Response Category','Priority','Connection Strength','Follow-up Date','Response Details','Notes']; let csv=headers.join(',')+'\n'; referrals.forEach(ref=>{ const row=[ref.contactName,ref.contactDesignation,ref.targetCompany,ref.jobRole,ref.dateRequested,ref.requestMethod,ref.linkedinProfile,ref.contactEmail,ref.materialsSent,ref.responseCategory,ref.priority,ref.connectionStrength,ref.followUpDate,ref.responseDetails,ref.notes].map(v=>{ if(!v) return ''; v=String(v); if(v.includes(',')||v.includes('"')||v.includes('\n')) return '"'+v.replace(/"/g,'""')+'"'; return v; }).join(','); csv+=row+'\n'; }); downloadFile(csv,'referral-requests-'+stamp()+'.csv','text/csv'); }
+function stamp(){ const n=new Date(); return n.toISOString().split('T')[0]; }
+function downloadFile(content, filename, type){ const blob=new Blob([content],{type}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+if(githubToken&&gistId&&(!referrals||referrals.length===0)){ syncFromGist(true); }
+setInterval(()=>{ if(autoSyncEnabled&&githubToken&&gistId&&referrals.length>0){ syncToGist(); } }, 5*60*1000);
+</script>
 </body>
 </html>
